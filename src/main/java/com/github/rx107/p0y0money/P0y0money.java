@@ -8,6 +8,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class P0y0money extends JavaPlugin {
     private SQLiteManager db;
+    private PriceManager priceManager;
+    private static net.milkbowl.vault.economy.Economy econ = null;
+
     @Override
     public void onEnable() {
         db = new SQLiteManager();
@@ -19,7 +22,10 @@ public class P0y0money extends JavaPlugin {
         // コマンドの登録
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
+            this.priceManager = new PriceManager();
 
+            // コマンドの登録
+            getCommand("sell").setExecutor(new SellCommand(this, priceManager));
             // マーケットコマンド
             commands.register("market", "フリマ機能", new MarketCommand(implementer, db, "market"));
             commands.register("market_internal", "内部用", new MarketCommand(implementer, db, "internal"));
@@ -33,8 +39,12 @@ public class P0y0money extends JavaPlugin {
         });
         getServer().getPluginManager().registerEvents(new MarketListener(implementer, db), this);
         getServer().getPluginManager().registerEvents(new SellListener(implementer), this);
-    }
 
+
+    }
+    public net.milkbowl.vault.economy.Economy getEconomy() {
+        return econ; // ここで上の「econ」を返します
+    }
     @Override
     public void onDisable() {
         if (db != null) db.close();
