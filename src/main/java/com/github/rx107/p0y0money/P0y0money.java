@@ -9,45 +9,44 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class P0y0money extends JavaPlugin {
     private SQLiteManager db;
     private PriceManager priceManager;
-    private static net.milkbowl.vault.economy.Economy econ = null;
+    private static Economy econ = null;
 
     @Override
     public void onEnable() {
         db = new SQLiteManager();
         db.load(getDataFolder());
+        this.priceManager = new PriceManager();
 
         VaultImplementer implementer = new VaultImplementer(db);
+        econ = implementer;
         getServer().getServicesManager().register(Economy.class, implementer, this, ServicePriority.Highest);
 
-        // コマンドの登録
+        // コマンド登録のライフサイクル
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
-            this.priceManager = new PriceManager();
 
-            // コマンドの登録
-            getCommand("sell").setExecutor(new SellCommand(this, priceManager));
-            // マーケットコマンド
+            // /sell で直接 GUI モード（EconomyCommandのsell）を呼び出す
+            commands.register("sell", "GUIを開いてアイテムを売却します", new EconomyCommand(implementer, "sell"));
+
+            // その他の既存コマンド
             commands.register("market", "フリマ機能", new MarketCommand(implementer, db, "market"));
-            commands.register("market_internal", "内部用", new MarketCommand(implementer, db, "internal"));
-            // それぞれ別の「モード」を持たせて登録
             commands.register("money", "残高を確認します", new EconomyCommand(implementer, "money"));
             commands.register("pay", "送金します", new EconomyCommand(implementer, "pay"));
-            commands.register("sell", "アイテムを売却します", new EconomyCommand(implementer, "sell"));
-            //test
-            // デバッグコマンドを追加 (モード: debug)
             commands.register("dep0y0", "管理者用デバッグコマンド", new EconomyCommand(implementer, "debug"));
         });
+
+        // リスナーの登録
         getServer().getPluginManager().registerEvents(new MarketListener(implementer, db), this);
-        getServer().getPluginManager().registerEvents(new SellListener(implementer), this);
-
-
+        // 精算ロジックは SellListener が担当
+        getServer().getPluginManager().registerEvents(new SellListener(implementer, priceManager), this);
     }
-    public net.milkbowl.vault.economy.Economy getEconomy() {
-        return econ; // ここで上の「econ」を返します
+
+    public Economy getEconomy() {
+        return econ;
     }
+
     @Override
     public void onDisable() {
         if (db != null) db.close();
     }
 }
-

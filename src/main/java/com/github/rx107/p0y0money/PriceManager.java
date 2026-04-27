@@ -5,58 +5,29 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class PriceManager {
-    // 価格を整数(Integer)に変更
     private final Map<Material, Integer> prices = new EnumMap<>(Material.class);
 
     public PriceManager() {
         // --- 木材 ---
-        addPrice(Material.OAK_LOG, 2);
-        addPrice(Material.SPRUCE_LOG, 2);
-        addPrice(Material.BIRCH_LOG, 2);
-        addPrice(Material.JUNGLE_LOG, 3);
-        addPrice(Material.ACACIA_LOG, 3);
-        addPrice(Material.DARK_OAK_LOG, 3);
-        addPrice(Material.MANGROVE_LOG, 3);
-        addPrice(Material.CHERRY_LOG, 3);
+        add(Material.OAK_LOG, 2); add(Material.SPRUCE_LOG, 2); add(Material.BIRCH_LOG, 2);
+        add(Material.JUNGLE_LOG, 3); add(Material.ACACIA_LOG, 3); add(Material.DARK_OAK_LOG, 3);
+        add(Material.MANGROVE_LOG, 3); add(Material.CHERRY_LOG, 3);
 
         // --- 石・土・砂・砂利 ---
-        addPrice(Material.COBBLESTONE, 1);
-        addPrice(Material.STONE, 1);
-        addPrice(Material.COBBLED_DEEPSLATE, 1);
-        addPrice(Material.GRANITE, 1);
-        addPrice(Material.DIORITE, 1);
-        addPrice(Material.ANDESITE, 1);
-        addPrice(Material.DIRT, 1);
-        addPrice(Material.GRASS_BLOCK, 2);
-        addPrice(Material.SAND, 1);
-        addPrice(Material.RED_SAND, 2);
-        addPrice(Material.GRAVEL, 1);
+        add(Material.COBBLESTONE, 1); add(Material.STONE, 1); add(Material.DIRT, 1);
+        add(Material.SAND, 1); add(Material.GRAVEL, 1); add(Material.GRASS_BLOCK, 2);
+        add(Material.RED_SAND, 2); add(Material.GRANITE, 1); add(Material.DIORITE, 1); add(Material.ANDESITE, 1);
 
         // --- 鉱石 ---
-        addPrice(Material.COAL, 5);
-        addPrice(Material.IRON_INGOT, 15);
-        addPrice(Material.GOLD_INGOT, 30);
-        addPrice(Material.DIAMOND, 500);
-        addPrice(Material.EMERALD, 50);
-        addPrice(Material.NETHERITE_SCRAP, 2500);
+        add(Material.COAL, 5); add(Material.IRON_INGOT, 15); add(Material.GOLD_INGOT, 30);
+        add(Material.DIAMOND, 500); add(Material.EMERALD, 50); add(Material.NETHERITE_SCRAP, 2500);
 
         // --- 作物 ---
-        addPrice(Material.WHEAT, 2);
-        addPrice(Material.CARROT, 1);
-        addPrice(Material.POTATO, 1);
-        addPrice(Material.SUGAR_CANE, 2);
-        addPrice(Material.PUMPKIN, 2);
+        add(Material.WHEAT, 2); add(Material.CARROT, 1); add(Material.POTATO, 1);
+        add(Material.SUGAR_CANE, 2); add(Material.PUMPKIN, 2);
     }
 
-    private void addPrice(Material material, int price) {
-        prices.put(material, price);
-    }
-
-    public Integer getPrice(Material material) {
-        return prices.getOrDefault(material, 0);
-    }
-
-    public boolean canSell(Material material) {
-        return prices.containsKey(material);
-    }
+    private void add(Material m, int p) { prices.put(m, p); }
+    public int getPrice(Material m) { return prices.getOrDefault(m, 0); }
+    public boolean canSell(Material m) { return prices.containsKey(m); }
 }
