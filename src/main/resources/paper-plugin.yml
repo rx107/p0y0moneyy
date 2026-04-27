@@ -1,0 +1,16 @@
+name: p0y0money
+version: '1.0-SNAPSHOT'
+main: com.github.rx107.p0y0money.P0y0money
+api-version: '1.21'
+authors: [ POYOFANCLUB_MINECRAFT_NEWTEAM ]
+description: ぽよファンクラブで使用しているマインクラフトのプラグインです。
+website: https://discord.gg/UyhgMg6Da7
+
+dependencies:
+  server:
+    Vault:
+      load: BEFORE
+      required: true
+    DiscordSRV:
+      load: BEFORE
+      required: false # trueにするとDiscordSRVがないと起動しなくなります

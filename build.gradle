@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example.economy'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    maven { url = "https://jitpack.io" }
+    // DiscordSRVの配布元リポジトリを追加
+    maven { url 'https://nexus.scarsz.me/content/groups/public/' }
+}
+
+dependencies {
+    // Paper API (1.21.11でも開発には1.21.1用を使います)
+    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+    // DiscordSRVのAPIを追加
+    compileOnly 'com.discordsrv:discordsrv:1.29.0'
+    // Vault API (内部の古いBukkitを排除して衝突を防ぐ)
+    compileOnly('com.github.MilkBowl:VaultAPI:1.7') {
+        exclude group: 'org.bukkit', module: 'bukkit'
+    }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // 日本語コメントの文字化け防止
+}
+
