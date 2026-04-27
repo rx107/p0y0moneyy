@@ -27,7 +27,7 @@ public class P0y0money extends JavaPlugin {
             commands.register("money", "残高を確認します", new EconomyCommand(implementer, "money"));
             commands.register("pay", "送金します", new EconomyCommand(implementer, "pay"));
             commands.register("sell", "アイテムを売却します", new EconomyCommand(implementer, "sell"));
-
+            //test
             // デバッグコマンドを追加 (モード: debug)
             commands.register("dep0y0", "管理者用デバッグコマンド", new EconomyCommand(implementer, "debug"));
         });
