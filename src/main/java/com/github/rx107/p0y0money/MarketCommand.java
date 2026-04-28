@@ -39,7 +39,7 @@ public class MarketCommand implements BasicCommand {
                 handleMarketAdd(player, args);
             } else if (args.length >= 2 && args[0].equalsIgnoreCase("buy")) {
                 sendConfirmMessage(player, Integer.parseInt(args[1]));
-            } else if (args.length >= 1 && args[0].equalsIgnoreCase("gui")) {
+            } else if (args.length == 0) {
                 openMarketGui(player);
             }
         }

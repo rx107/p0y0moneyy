@@ -7,9 +7,11 @@ import java.util.Map;
 public class PriceManager {
     private final Map<Material, Integer> prices = new EnumMap<>(Material.class);
 
+    //価格設定
     public PriceManager() {
         // --- 木材 ---
-        add(Material.OAK_LOG, 2); add(Material.SPRUCE_LOG, 2); add(Material.BIRCH_LOG, 2);
+        /**/
+        /*オークの木*/add(Material.OAK_LOG, 2); /*樫の木*/add(Material.SPRUCE_LOG, 2); /*シラバカの木*/add(Material.BIRCH_LOG, 2);
         add(Material.JUNGLE_LOG, 3); add(Material.ACACIA_LOG, 3); add(Material.DARK_OAK_LOG, 3);
         add(Material.MANGROVE_LOG, 3); add(Material.CHERRY_LOG, 3);
 

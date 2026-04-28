@@ -24,20 +24,17 @@ public class P0y0money extends JavaPlugin {
         // コマンド登録のライフサイクル
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
-
-            // /sell で直接 GUI モード（EconomyCommandのsell）を呼び出す
-            commands.register("sell", "GUIを開いてアイテムを売却します", new EconomyCommand(implementer, "sell"));
-
-            // その他の既存コマンド
+            //コマンドリスト
             commands.register("market", "フリマ機能", new MarketCommand(implementer, db, "market"));
+            commands.register("market_internal", "内部用", new MarketCommand(implementer, db, "internal"));
             commands.register("money", "残高を確認します", new EconomyCommand(implementer, "money"));
             commands.register("pay", "送金します", new EconomyCommand(implementer, "pay"));
+            commands.register("sell", "GUIを開いてアイテムを売却します", new EconomyCommand(implementer, "sell"));
             commands.register("dep0y0", "管理者用デバッグコマンド", new EconomyCommand(implementer, "debug"));
         });
 
-        // リスナーの登録
+        //GUIの設定(Listener)
         getServer().getPluginManager().registerEvents(new MarketListener(implementer, db), this);
-        // 精算ロジックは SellListener が担当
         getServer().getPluginManager().registerEvents(new SellListener(implementer, priceManager), this);
     }
 
