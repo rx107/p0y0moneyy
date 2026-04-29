@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("all")
 public class ShopCommand implements BasicCommand {
     private final Economy eco;
     private final ShopManager shopManager;

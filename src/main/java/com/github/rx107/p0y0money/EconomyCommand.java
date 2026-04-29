@@ -9,15 +9,22 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Sound;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("all")
 public class EconomyCommand implements BasicCommand {
+    private static final String ERROR_ADMIN_ONLY = "§cこのコマンドを実行する権限がありません。";
+    private static final String ERROR_INSUFFICIENT_BALANCE = "§c残高が足りません。";
+    private static final String ERROR_INVALID_NUMBER = "§c金額は数字で指定してください。";
+    private static final String ERROR_POSITIVE_INTEGER = "§c値には正の整数を指定してください。";
+    private static final String DEBUG_PREFIX = "§e[Debug] §f";
+
     private final Economy economy;
-    private final String mode; // "money", "pay", "sell" のどれかを保持
+    private final String mode;
 
     public EconomyCommand(Economy economy, String mode) {
         this.economy = economy;
@@ -29,91 +36,110 @@ public class EconomyCommand implements BasicCommand {
         CommandSender sender = stack.getSender();
         if (!(sender instanceof Player player)) return;
 
-        // モードによって処理を分岐
         switch (mode) {
-            case "money" -> {
-                player.sendMessage("§a現在の残高: §e" + economy.format(economy.getBalance(player)));
-            }
-            case "pay" -> {
-                if (args.length < 2) {
-                    player.sendMessage("§c使用法: /pay <名前> <金額>");
-                    return;
-                }
-                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                try {
-                    double amount = Double.parseDouble(args[1]);
-                    if (economy.withdrawPlayer(player, amount).transactionSuccess()) {
-                        economy.depositPlayer(target, amount);
-                        player.sendMessage("§b" + target.getName() + "へ " + economy.format(amount) + " 送金しました。");
-                    } else {
-                        player.sendMessage("§c残高が足りません。");
-                    }
-                } catch (NumberFormatException e) {
-                    player.sendMessage("§c金額は数字で指定してください。");
-                }
-            }
-            case "sell" -> {
-                Inventory sellGui = Bukkit.createInventory(null, 27, Component.text("売り物GUI"));
-                player.openInventory(sellGui);
-                // 経験値オーブを拾った音を再生 (場所, 音の種類, 音量, ピッチ)
-                player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-                player.sendMessage("§e売りたいアイテムをGUIに入れて、画面を閉じてください。");
-            }
-            case "debug" -> {
-                // 1. 管理者権限(OP)チェック
-                if (!player.isOp()) {
-                    player.sendMessage("§cこのコマンドを実行する権限がありません。");
-                    return;
-                }
-
-                // 引数チェック: /dep0y0 money <add|delete> <値> (最低4つの要素が必要)
-                if (args.length < 3 || !args[0].equalsIgnoreCase("money")) {
-                    player.sendMessage("§c使用法: /dep0y0 money <add|delete> <値>");
-                    return;
-                }
-
-                String action = args[1].toLowerCase();
-                int amount;
-
-                // 2. 小数点がないこと（整数のみ）のチェック
-                try {
-                    amount = Integer.parseInt(args[2]);
-                    if (amount < 0) {
-                        player.sendMessage("§c値には正の整数を指定してください。");
-                        return;
-                    }
-                } catch (NumberFormatException e) {
-                    player.sendMessage("§c値には小数点のない整数を指定してください。");
-                    return;
-                }
-
-                double currentBalance = economy.getBalance(player);
-
-                if (action.equals("add")) {
-                    // 所持金の追加
-                    economy.depositPlayer(player, amount);
-                    player.sendMessage("§e[Debug] §f" + amount + "moneyを追加しました。");
-                    player.sendMessage("§a現在の残高: §e" + economy.format(economy.getBalance(player)));
-
-                } else if (action.equals("delete")) {
-                    // 3. 所持金の剥奪（マイナスになる場合は0にする）
-                    if (currentBalance < amount) {
-                        // 全額没収（残高を0にするために、現在の全額を引き出す）
-                        economy.withdrawPlayer(player, currentBalance);
-                        player.sendMessage("§e[Debug] §f所持金が足りないため、残高を強制的に§c0§fにしました。");
-                    } else {
-                        economy.withdrawPlayer(player, amount);
-                        player.sendMessage("§e[Debug] §f" + amount + "moneyを剥奪しました。");
-                    }
-                    player.sendMessage("§a現在の残高: §e" + economy.format(economy.getBalance(player)));
-
-                } else {
-                    player.sendMessage("§c使用法: /dep0y0 money <add|delete> <値>");
-
-                }
-
-            }
+            case "money" -> handleMoneyCommand(player);
+            case "pay" -> handlePayCommand(player, args);
+            case "sell" -> handleSellCommand(player);
+            case "debug" -> handleDebugCommand(player, args);
         }
+    }
+
+    private void handleMoneyCommand(Player player) {
+        double balance = economy.getBalance(player);
+        player.sendMessage("§a現在の残高: §e" + economy.format(balance));
+    }
+
+    private void handlePayCommand(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage("§c使用法: /pay <名前> <金額>");
+            return;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+        try {
+            double amount = Double.parseDouble(args[1]);
+            if (economy.withdrawPlayer(player, amount).transactionSuccess()) {
+                economy.depositPlayer(target, amount);
+                player.sendMessage("§b" + target.getName() + "へ " + economy.format(amount) + " 送金しました。");
+            } else {
+                player.sendMessage(ERROR_INSUFFICIENT_BALANCE);
+            }
+        } catch (NumberFormatException e) {
+            player.sendMessage(ERROR_INVALID_NUMBER);
+        }
+    }
+
+    private void handleSellCommand(Player player) {
+        Inventory sellGui = Bukkit.createInventory(null, 27, Component.text("売り物GUI"));
+        player.openInventory(sellGui);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+        player.sendMessage("§e売りたいアイテムをGUIに入れて、画面を閉じてください。");
+    }
+
+    private void handleDebugCommand(Player player, String[] args) {
+        if (!player.isOp()) {
+            player.sendMessage(ERROR_ADMIN_ONLY);
+            return;
+        }
+
+        if (!isValidDebugArgs(player, args)) {
+            return;
+        }
+
+        String action = args[1].toLowerCase();
+        int amount = Integer.parseInt(args[2]);
+
+        if (action.equals("add")) {
+            handleMoneyAdd(player, amount);
+        } else if (action.equals("delete")) {
+            handleMoneyDelete(player, amount);
+        } else {
+            player.sendMessage("§c使用法: /dep0y0 money <add|delete> <値>");
+        }
+    }
+
+    private boolean isValidDebugArgs(Player player, String[] args) {
+        if (args.length < 3 || !args[0].equalsIgnoreCase("money")) {
+            player.sendMessage("§c使用法: /dep0y0 money <add|delete> <値>");
+            return false;
+        }
+
+        try {
+            int amount = Integer.parseInt(args[2]);
+            if (amount < 0) {
+                player.sendMessage(ERROR_POSITIVE_INTEGER);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            player.sendMessage("§c値には小数点のない整数を指定してください。");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void handleMoneyAdd(Player player, int amount) {
+        economy.depositPlayer(player, amount);
+        player.sendMessage(DEBUG_PREFIX + amount + "moneyを追加しました。");
+        displayBalance(player);
+    }
+
+    private void handleMoneyDelete(Player player, int amount) {
+        double currentBalance = economy.getBalance(player);
+
+        if (currentBalance < amount) {
+            economy.withdrawPlayer(player, currentBalance);
+            player.sendMessage(DEBUG_PREFIX + "所持金が足りないため、残高を強制的に§c0§fにしました。");
+        } else {
+            economy.withdrawPlayer(player, amount);
+            player.sendMessage(DEBUG_PREFIX + amount + "moneyを剥奪しました。");
+        }
+
+        displayBalance(player);
+    }
+
+    private void displayBalance(Player player) {
+        player.sendMessage("§a現在の残高: §e" + economy.format(economy.getBalance(player)));
     }
 
     @Override

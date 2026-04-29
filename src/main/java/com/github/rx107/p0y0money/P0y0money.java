@@ -8,10 +8,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class P0y0money extends JavaPlugin {
     private SQLiteManager db;
+    @SuppressWarnings("all")
     private PriceManager priceManager;
     private static Economy econ = null;
 
     @Override
+    @SuppressWarnings("all")
     public void onEnable() {
         db = new SQLiteManager();
         db.load(getDataFolder());
@@ -44,6 +46,7 @@ public class P0y0money extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ShopListener(shopManager, shopCmd), this);
     }
 
+    @SuppressWarnings("unused")
     public Economy getEconomy() {
         return econ;
     }

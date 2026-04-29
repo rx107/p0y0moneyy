@@ -18,6 +18,7 @@ public class ShopListener implements Listener {
     }
 
     @EventHandler
+    @SuppressWarnings("all")
     public void onClick(InventoryClickEvent event) {
         String title = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
         if (!title.contains("ショップ") && !title.contains("セール")) return;

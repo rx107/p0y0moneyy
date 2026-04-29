@@ -6,6 +6,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.*;
 import java.util.Base64;
 
+@SuppressWarnings("deprecation")
 public class MarketManager {
     // アイテムを文字列に変換
     public static String serialize(ItemStack item) {

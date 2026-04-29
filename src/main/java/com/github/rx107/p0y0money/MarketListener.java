@@ -1,6 +1,5 @@
 package com.github.rx107.p0y0money;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+@SuppressWarnings("all")
 public class MarketListener implements Listener {
     private final SQLiteManager db;
 
