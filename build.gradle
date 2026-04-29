@@ -32,3 +32,28 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // 日本語コメントの文字化け防止
 }
 
+// JAR設定
+jar {
+    archiveBaseName = 'p0y0money'
+    archiveVersion = project.version
+}
+
+// デプロイタスク (PowerShell スクリプトを呼び出し)
+task deploy {
+    dependsOn jar
+    doLast {
+        def jarFile = jar.archiveFile.get().asFile
+        def scriptPath = new File(project.rootDir, 'deploy-simple.ps1').absolutePath
+        
+        println "📦 デプロイスクリプトを実行中..."
+        println "JAR: ${jarFile.name}"
+        
+        def process = "powershell -ExecutionPolicy Bypass -File \"${scriptPath}\" -jarFile \"${jarFile.absolutePath}\"".execute()
+        process.consumeProcessOutput(System.out, System.err)
+        def exitCode = process.waitFor()
+        
+        if (exitCode != 0) {
+            throw new RuntimeException("デプロイスクリプトがエラーで終了しました")
+        }
+    }
+}

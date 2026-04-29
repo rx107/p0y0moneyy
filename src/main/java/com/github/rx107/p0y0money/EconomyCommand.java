@@ -1,5 +1,7 @@
 package com.github.rx107.p0y0money;
 
+import com.github.rx107.p0y0money.database.VaultImplementer;
+import com.github.rx107.p0y0money.shop.PriceManager;
 import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -23,11 +25,11 @@ public class EconomyCommand implements BasicCommand {
     private static final String ERROR_POSITIVE_INTEGER = "§c値には正の整数を指定してください。";
     private static final String DEBUG_PREFIX = "§e[Debug] §f";
 
-    private final Economy economy;
+    private final VaultImplementer economy;
     private final String mode;
 
     public EconomyCommand(Economy economy, String mode) {
-        this.economy = economy;
+        this.economy = (VaultImplementer) economy;
         this.mode = mode;
     }
 

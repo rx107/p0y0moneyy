@@ -1,5 +1,12 @@
 package com.github.rx107.p0y0money;
 
+import com.github.rx107.p0y0money.database.SQLiteManager;
+import com.github.rx107.p0y0money.database.VaultImplementer;
+import com.github.rx107.p0y0money.market.MarketCommand;
+import com.github.rx107.p0y0money.market.MarketListener;
+import com.github.rx107.p0y0money.shop.*;
+import com.github.rx107.p0y0money.tag.TagCommand;
+import com.github.rx107.p0y0money.tag.TagListener;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.milkbowl.vault.economy.Economy;
@@ -38,12 +45,14 @@ public class P0y0money extends JavaPlugin {
             commands.register("pay", "送金します", new EconomyCommand(implementer, "pay"));
             commands.register("sell", "GUIを開いてアイテムを売却します", new EconomyCommand(implementer, "sell"));
             commands.register("dep0y0", "管理者用デバッグコマンド", new EconomyCommand(implementer, "debug"));
+            commands.register("p0y0tag", "称号", new TagCommand(db));
         });
 
         //GUIの設定(Listener)
         getServer().getPluginManager().registerEvents(new MarketListener(implementer, db), this);
         getServer().getPluginManager().registerEvents(new SellListener(implementer, priceManager), this);
         getServer().getPluginManager().registerEvents(new ShopListener(shopManager, shopCmd), this);
+        getServer().getPluginManager().registerEvents(new TagListener(db), this);
     }
 
     @SuppressWarnings("unused")
