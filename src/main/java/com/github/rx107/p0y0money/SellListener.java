@@ -33,7 +33,7 @@ public class SellListener implements Listener {
 
             if (priceManager.canSell(item.getType())) {
                 // 整数で計算
-                totalEarned += priceManager.getPrice(item.getType()) * item.getAmount();
+                totalEarned += priceManager.getSellPrice(item.getType()) * item.getAmount();
             } else {
                 // 売れないアイテムはプレイヤーのインベントリに返す
                 Map<Integer, ItemStack> leftOver = player.getInventory().addItem(item);
